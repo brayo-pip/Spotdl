@@ -371,14 +371,14 @@ def search_and_order_ytm_results(
 
         #! Skip if there are no artists in common, (else, results like 'Griffith Swank -
         #! Madness' will be the top match for 'Ruelle - Madness')
-        if artistMatchNumber == 0:
-            continue
+        # if artistMatchNumber == 0:
+        #     continue
 
-        artistMatch = (artistMatchNumber / len(songArtists)) * 100
+        # artistMatch = (artistMatchNumber / len(songArtists)) * 100
 
         # Find name match
         nameMatch = round(match_percentage(result["name"], songName, 50), ndigits=3)
-        print(f"namematch: {nameMatch}, result:{result['name']}, songname:{songName}")
+        # print(f"namematch: {nameMatch}, result:{result['name']}, songname:{songName}")
 
         # Find album match
         #! We assign an arbitrary value of 0 for album match in case of video results
@@ -387,9 +387,9 @@ def search_and_order_ytm_results(
 
         if result["type"] == "song":
             albumMatch = match_percentage(result["album"], songAlbumName)
-            print(
-                f"albummatch: {albumMatch}, result:{result['album']}, album:{songAlbumName}"
-            )
+            # print(
+            #     f"albummatch: {albumMatch}, result:{result['album']}, album:{songAlbumName}"
+            # )
 
         # Find duration match
         #! time match = 100 - (delta(duration)**2 / original duration * 100)
@@ -400,11 +400,11 @@ def search_and_order_ytm_results(
         nonMatchValue = (delta ** 2) / songDuration * 100
 
         timeMatch = 100 - nonMatchValue
-        print(f"artist match:{artistMatch}")
-        print(f"time match :{timeMatch}")
+        # print(f"artist match:{artistMatch}")
+        # print(f"time match :{timeMatch}")
 
         # the results along with the avg Match
-        avgMatch = (artistMatch + albumMatch + nameMatch + timeMatch) / 4
+        avgMatch = (albumMatch + nameMatch + timeMatch) / 3
 
         linksWithMatchValue[result["link"]] = avgMatch
         # print(linksWithMatchValue)

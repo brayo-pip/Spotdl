@@ -1,5 +1,6 @@
 from spotdl.search.provider import search_and_get_best_match
 from spotdl.search.spotifyClient import get_spotify_client
+from spotdl.lyrics.genius import Genius
 
 from os.path import join
 
@@ -188,7 +189,15 @@ class SongObj:
         """
 
         return self.__rawTrackMeta["album"]["images"][0]["url"]
-
+    # Primary Artist Name
+    def get_primary_artist_name(self):
+        """ used for fetching lyrics """
+        return self.__rawArtistMeta["name"]
+    def get_stripped_song_name(self):
+        songname = self.get_song_name()
+        if "(" in songname:
+            songname = songname[:songname.find("(")]
+        return songname
     #! 2. All the details the spotify-api can provide
     def get_data_dump(self) -> dict:
         """
@@ -202,7 +211,7 @@ class SongObj:
         rare occasions where there is a need to look up other details. Why
         have to look it up seperately when it's already been looked up once?
         """
-
+        
         #! internally the only reason this exists is that it helps in saving to disk
 
         return {
@@ -211,3 +220,9 @@ class SongObj:
             "rawAlbumMeta": self.__rawAlbumMeta,
             "rawArtistMeta": self.__rawArtistMeta,
         }
+    def get_lyrics(self)->str:
+        """ fetches the lyrics from Genius"""
+        songName = self.get_stripped_song_name()
+        artistName = self.get_primary_artist_name()
+        return Genius.from_query(song=songName,artist=artistName)
+            

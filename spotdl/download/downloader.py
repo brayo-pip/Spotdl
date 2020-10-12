@@ -12,7 +12,7 @@ from multiprocessing import Pool
 from spotdl.patches.pyTube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
-from mutagen.id3 import APIC as AlbumCover
+from mutagen.id3 import USLT, APIC as AlbumCover
 
 from urllib.request import urlopen
 
@@ -30,7 +30,6 @@ from spotdl.download.progressHandlers import DisplayManager, DownloadTracker
 #! Technically, this should ideally be defined within the downloadManager class. But due
 #! to the quirks of multiprocessing.Pool, that can't be done. Do not consider this as a
 #! standalone function but rather as part of DownloadManager
-
 
 def download_song(
     songObj: SongObj,
@@ -95,6 +94,8 @@ def download_song(
         #! None is the default return value of all functions, we just explicitly define
         #! it here as a continent way to avoid executing the rest of the function.
         return None
+
+    Lyrics = songObj.get_lyrics()
 
     # download Audio from YouTube
     if displayManager:
@@ -192,7 +193,6 @@ def download_song(
     #! album release date (to what ever precision available)
     audioFile["date"] = songObj.get_album_release()
     audioFile["originaldate"] = songObj.get_album_release()
-
     #! save as both ID3 v2.3 & v2.4 as v2.3 isn't fully features and
     #! windows doesn't support v2.4 until later versions of Win10
     audioFile.save(v2_version=3)
@@ -204,6 +204,10 @@ def download_song(
 
     audioFile["APIC"] = AlbumCover(
         encoding=3, mime="image/jpeg", type=3, desc="Cover", data=rawAlbumArt
+    )
+
+    audioFile["USLT"] = USLT(
+        encoding =3, desc=u"Lyrics", text=Lyrics
     )
 
     audioFile.save(v2_version=3)

@@ -137,7 +137,7 @@ def console_entry_point():
 
                 downloader.download_multiple_songs(songObjList)
         elif "spotify:" in request:
-            # it's a URI with format Spotify:...:id
+            # it's a URI with format Spotify:...:ID
             if "track:" in request:
                 print("Fetching Song...")
                 # yes, passing a URI to this function still works coz it relies on another

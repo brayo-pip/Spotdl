@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     # 'spotify-downloader' was already taken (＞﹏＜)
     name="spotdl",
-    packages=["spotdl", "spotdl.search", "spotdl.download", "spotdl.patches"],
+    packages=["spotdl", "spotdl.search", "spotdl.download", "spotdl.lyrics","spotdl.patches"],
     version="3.1.0",
     install_requires=[
         "spotipy",
@@ -12,14 +12,15 @@ setup(
         "rapidfuzz",
         "requests",
         "mutagen",
+        "lxml"
     ],
     description="Downloads Spotify music from Youtube with metadata and album art",
-    author="Ritiek Malhotra",
-    author_email="ritiekmalhotra123@gmail.com",
+    author="Brian Syuki",
+    author_email="vukubrian@gmail.com",
     license="MIT",
     python_requires=">=3.6",
-    url="https://github.com/ritiek/spotify-downloader",
-    download_url="https://pypi.org/project/spotdl/",
+    url="https://github.com/brayo-pip/spotify-downloader",
+    # download_url="https://pypi.org/project/spotdl/",
     keywords=[
         "spotify",
         "downloader",
