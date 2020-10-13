@@ -200,7 +200,7 @@ def download_song(
     #! setting the album art
     audioFile = ID3(convertedFilePath)
 
-    rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
+    rawAlbumArt = get(songObj.get_album_cover_url()).content
 
     audioFile["APIC"] = AlbumCover(
         encoding=3, mime="image/jpeg", type=3, desc="Cover", data=rawAlbumArt
@@ -308,13 +308,16 @@ class DownloadManager:
         self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
-        self.workerPool.starmap(
-            func=download_song,
-            iterable=(
-                (song, self.displayManager, self.downloadTracker)
-                for song in songObjList
-            ),
-        )
+        with concurrent.futures.ProcessPoolExecutor(max_workers=4) as exec:
+            exec.map(download_song,((song, self.displayManager, self.downloadTracker) for song in songObjList))
+
+        # self.workerPool.starmap(
+        #     func=download_song,
+        #     iterable=(
+        #         (song, self.displayManager, self.downloadTracker)
+        #         for song in songObjList
+        #     ),
+        # )
         print()
 
     def close(self) -> None:
@@ -329,3 +332,4 @@ class DownloadManager:
 
         self.workerPool.close()
         self.workerPool.join()
+        
