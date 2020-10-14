@@ -149,8 +149,7 @@ def console_entry_point():
                     downloader.download_single_song(song)
                 else:
                     print(
-                        "Skipping %s (%s) as no match could be found on youtube"
-                        % (song.get_song_name(), request)
+                        f"Skipping {song.get_song_name()} ({request}) as no match could be found on youtube"
                     )
 
             elif "album:" in request:

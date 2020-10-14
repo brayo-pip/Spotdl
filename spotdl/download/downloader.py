@@ -311,8 +311,8 @@ class DownloadManager:
         self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
-        with concurrent.futures.ProcessPoolExecutor(max_workers=4) as exec:
-            exec.map(download_song,((song, self.displayManager, self.downloadTracker) for song in songObjList))
+        # with concurrent.futures.ProcessPoolExecutor(max_workers=4) as exec:
+        #     exec.map(download_song,((song, self.displayManager, self.downloadTracker) for song in songObjList))
 
         self.workerPool.starmap(
             func=download_song,
