@@ -147,7 +147,7 @@ def download_song(
     #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+    command = 'ffmpeg  -v quiet -hwaccel_output_format cuda -y -i "%s" -acodec libmp3lame -abr true  "%s"'
     formattedCommand = command % (downloadedFilePath, convertedFilePath)
 
     # run_in_shell(formattedCommand)
