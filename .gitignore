@@ -11,9 +11,9 @@ originalCodeRef/*
 __pycache__
 .mypy_cache
 
-# vscode
+# vscode and vs
 .vscode
-
+.vs
 # MS Visio Pro
 externalTools/*
 
