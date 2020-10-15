@@ -371,10 +371,10 @@ def search_and_order_ytm_results(
 
         #! Skip if there are no artists in common, (else, results like 'Griffith Swank -
         #! Madness' will be the top match for 'Ruelle - Madness')
-        # if artistMatchNumber == 0:
-        #     continue
+        if artistMatchNumber == 0:
+            continue
 
-        # artistMatch = (artistMatchNumber / len(songArtists)) * 100
+        artistMatch = (artistMatchNumber / len(songArtists)) * 100
 
         # Find name match
         nameMatch = round(match_percentage(result["name"], songName, 50), ndigits=3)
@@ -404,7 +404,7 @@ def search_and_order_ytm_results(
         # print(f"time match :{timeMatch}")
 
         # the results along with the avg Match
-        avgMatch = (albumMatch + nameMatch + timeMatch) / 3
+        avgMatch = (albumMatch + nameMatch + timeMatch + artistMatch) / 4
 
         linksWithMatchValue[result["link"]] = avgMatch
         # print(linksWithMatchValue)
