@@ -155,7 +155,7 @@ def download_song(
     return_code = call(formattedCommand)
 
     if return_code != 0:
-        raise("Error occurred during connversion, ffmpeg issue probably")
+        raise("Error occurred during conversion, ffmpeg issue probably")
         
     if displayManager:
         displayManager.notify_conversion_completion()

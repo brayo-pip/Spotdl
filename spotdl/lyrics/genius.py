@@ -1,4 +1,6 @@
-import bs4, requests#, time
+# import time
+from requests import get
+from bs4 import BeautifulSoup
 base_url = "https://genius.com"
 base_search_url = base_url + "/api/search/multi?per_page=1&q="
 
@@ -7,14 +9,14 @@ class Genius():
     def from_query(self,artist,song,lyric_fail=True)->str:
         """
         Returns the lyrics as a string \n
-        set the lyric fail to false if u prefer no lyrics
+        set lyric fail to false if you prefer no lyrics
         to bad lyrics
         """
         query = f"{artist} {song}"
         # print("Artist name: {} \n Song:{}".format(artist, song))
         encoded_query = query.replace(" ", "+")
         search_url = base_search_url + encoded_query
-        response_json = requests.get(search_url).json()
+        response_json = get(search_url).json()
         # print(response_json['response']['sections'][0]['hits'][0]['result'])
         lyric_url = base_url + response_json['response']['sections'][0]['hits'][0]['result']['path']
         
@@ -33,12 +35,12 @@ class Genius():
         if url == "":
             """return nil if url is nil"""
             return ""
-        soup = bs4.BeautifulSoup(requests.get(url).content, features='lxml')
+        soup = BeautifulSoup(get(url).content, features='lxml')
         retries = 10
         lyrics = soup.html.p.text
         while retries > 0 and lyrics == "Produced by" or lyrics =="Featuring":
             # time.sleep(0.5)
-            soup = bs4.BeautifulSoup(requests.get(url).content, features="lxml")
+            soup = BeautifulSoup(get(url).content, features="lxml")
             lyrics = soup.html.p.text
         if retries == 0 and lyrics == "Produced by" or lyrics == "Featuring":
             # the scripts gives up and plays hangman
