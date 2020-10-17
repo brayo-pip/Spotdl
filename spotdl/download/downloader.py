@@ -11,7 +11,7 @@ from time import sleep
 from os.path import join, exists
 
 from multiprocessing import Pool
-
+import threading
 from spotdl.patches.pyTube import YouTube
 
 from mutagen.easyid3 import EasyID3, ID3
@@ -147,12 +147,11 @@ def download_song(
     #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    command = 'ffmpeg  -v quiet -hwaccel_output_format cuda -y -i "%s" -acodec libmp3lame -abr true  "%s"'
-    formattedCommand = command % (downloadedFilePath, convertedFilePath)
+    command = f'ffmpeg  -v quiet -hwaccel_output_format cuda -y -i "{downloadedFilePath}" -acodec libmp3lame -abr true  "{convertedFilePath}"'
 
     # run_in_shell(formattedCommand)
     return_code = None
-    return_code = call(formattedCommand)
+    return_code = call(command)
 
     if return_code != 0:
         raise("Error occurred during conversion, ffmpeg issue probably")
@@ -285,14 +284,31 @@ class DownloadManager:
         self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
-        self.workerPool.starmap(
-            func=download_song,
-            iterable=(
-                (song, self.displayManager, self.downloadTracker)
-                for song in songObjList
-            ),
-        )
+        # self.workerPool.starmap(
+        #     func=download_song,
+        #     iterable=(
+        #         (song, self.displayManager, self.downloadTracker)
+        #         for song in songObjList
+        #     ),
+        # )
+        threads = list()
         print()
+        for song in songObjList:
+            thread = threading.Thread(target=download_song, args=(song,self.displayManager, self.downloadTracker))
+            threads.append(thread)
+            thread.start()
+            print("thread spawned")
+            if len(threads) == 4:
+                for index, thread in enumerate(threads):
+                    thread.join()
+                    print(f"Thread {index}, has exited")
+                threads.clear()
+
+
+            
+        
+        
+
 
     def resume_download_from_tracking_file(self, trackingFilePath: str) -> None:
         """

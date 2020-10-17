@@ -1,7 +1,5 @@
 #! Basic necessities to get the CLI running
 from spotdl.search.spotifyClient import initialize
-from sys import argv as cliArgs
-
 #! Song Search from different start points
 from spotdl.search.utils import get_playlist_tracks, get_album_tracks, search_for_song
 from spotdl.search.songObj import SongObj
@@ -11,6 +9,8 @@ from spotdl.download.downloader import DownloadManager
 
 #! to avoid packaging errors
 from multiprocessing import freeze_support
+import os
+import time
 
 
 #! Usage is simple - call 'python __main__.py <links, search terms, tracking files seperated by spaces>
@@ -27,8 +27,8 @@ from multiprocessing import freeze_support
 #!
 #! All songs are normalized to standard base volume. the soft ones are made louder, the loud ones, softer.
 #!
-#! The progress bar is synched across multiple-processes (4 processes as of now), getting the progress bar to
-#! synch was an absolute pain, each process knows how much 'it' progressed, but the display has to be for the
+#! The progress bar is synced across multiple-processes (4 processes as of now), getting the progress bar to
+#! sync was an absolute pain, each process knows how much 'it' progressed, but the display has to be for the
 #! overall progress so, yeah... that took time.
 #!
 #! spotdl will show you its true speed on longer download's - so make sure you try downloading a playlist.
@@ -81,7 +81,8 @@ You can chain up download tasks by seperating them with spaces:
 Spotdl downloads up to 4 songs in parallel - try to download albums and playlists instead of
 tracks for more speed
 """
-
+start = time.time()
+cliArgs = os.sys.argv
 
 def console_entry_point():
     """
@@ -121,8 +122,7 @@ def console_entry_point():
                     downloader.download_single_song(song)
                 else:
                     print(
-                        "Skipping %s (%s) as no match could be found on youtube"
-                        % (song.get_song_name(), request)
+                        f"Skipping {song.get_song_name()} ({request}) as no match could be found on youtube"
                     )
 
             elif "album" in request:
@@ -134,7 +134,7 @@ def console_entry_point():
             elif "playlist" in request:
                 print("Fetching Playlist...")
                 songObjList = get_playlist_tracks(request)
-
+                # print(f"Fetching took {time.time()-start} seconds")
                 downloader.download_multiple_songs(songObjList)
         elif "spotify:" in request:
             # it's a URI with format Spotify:...:ID
@@ -169,18 +169,17 @@ def console_entry_point():
             downloader.resume_download_from_tracking_file(request)
 
         else:
-            print('Searching for song "%s"...' % request)
+            print(f'Searching for song "{request}"...')
             try:
                 song = search_for_song(request)
                 downloader.download_single_song(song)
 
             except Exception:
-                print('No song named "%s" could be found on spotify' % request)
+                print(f'No song named "{request}" could be found on spotify')
 
     downloader.close()
 
 
 if __name__ == "__main__":
-    freeze_support()
 
     console_entry_point()
