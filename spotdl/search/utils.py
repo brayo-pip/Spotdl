@@ -22,8 +22,8 @@ def search_for_song(query: str) -> SongObj:
         raise Exception("No song matches found on Spotify")
     else:
         for songResult in result["tracks"]["items"]:
-            songUrl = "http://open.spotify.com/track/" + songResult["id"]
-            song = SongObj.from_url(songUrl)
+        
+            song = SongObj.from_url(songResult["id"])
 
             if song.get_youtube_link() != None:
                 return song
@@ -48,7 +48,7 @@ def get_album_tracks(albumUrl: str) -> List[SongObj]:
     while True:
 
         for track in trackResponse["items"]:
-            song = SongObj.from_url("https://open.spotify.com/track/" + track["id"])
+            song = SongObj.from_url(track["id"])
 
             if song.get_youtube_link() != None:
                 albumTracks.append(song)
@@ -82,7 +82,7 @@ def get_playlist_tracks(playlistUrl: str) -> List[SongObj]:
 
         for songEntry in playlistResponse["items"]:
             song = SongObj.from_url(
-                "https://open.spotify.com/track/" + songEntry["track"]["id"]
+                songEntry["track"]["id"]
             )
 
             if song.get_youtube_link() != None:

@@ -4,7 +4,10 @@
 
 from spotdl.download.progressHandlers import ProgressRootProcess
 
-from os import mkdir, remove, system as run_in_shell
+from os import mkdir, remove
+
+from subprocess import call
+from time import sleep
 from os.path import join, exists
 
 from multiprocessing import Pool
@@ -14,7 +17,7 @@ from spotdl.patches.pyTube import YouTube
 from mutagen.easyid3 import EasyID3, ID3
 from mutagen.id3 import USLT, APIC as AlbumCover
 
-from urllib.request import urlopen
+from requests import get
 
 #! The following are not used, they are just here for static typechecking with mypy
 from typing import List
@@ -144,16 +147,16 @@ def download_song(
     #! sampled length of songs matches the actual length (i.e. a 5 min song won't display
     #! as 47 seconds long in your music player, yeah that was an issue earlier.)
 
-    command = 'ffmpeg -v quiet -y -i "%s" -acodec libmp3lame -abr true -af "apad=pad_dur=2, dynaudnorm, loudnorm=I=-17" "%s"'
+    command = 'ffmpeg  -v quiet -hwaccel_output_format cuda -y -i "%s" -acodec libmp3lame -abr true  "%s"'
     formattedCommand = command % (downloadedFilePath, convertedFilePath)
 
-    run_in_shell(formattedCommand)
+    # run_in_shell(formattedCommand)
+    return_code = None
+    return_code = call(formattedCommand)
 
-    #! Wait till converted file is actually created
-    while True:
-        if exists(convertedFilePath):
-            break
-
+    if return_code != 0:
+        raise("Error occurred during conversion, ffmpeg issue probably")
+        
     if displayManager:
         displayManager.notify_conversion_completion()
 
@@ -200,7 +203,7 @@ def download_song(
     #! setting the album art
     audioFile = ID3(convertedFilePath)
 
-    rawAlbumArt = urlopen(songObj.get_album_cover_url()).read()
+    rawAlbumArt = get(songObj.get_album_cover_url()).content
 
     audioFile["APIC"] = AlbumCover(
         encoding=3, mime="image/jpeg", type=3, desc="Cover", data=rawAlbumArt
@@ -308,6 +311,9 @@ class DownloadManager:
         self.displayManager.reset()
         self.displayManager.set_song_count_to(len(songObjList))
 
+        # with concurrent.futures.ProcessPoolExecutor(max_workers=4) as exec:
+        #     exec.map(download_song,((song, self.displayManager, self.downloadTracker) for song in songObjList))
+
         self.workerPool.starmap(
             func=download_song,
             iterable=(
@@ -329,3 +335,4 @@ class DownloadManager:
 
         self.workerPool.close()
         self.workerPool.join()
+        
